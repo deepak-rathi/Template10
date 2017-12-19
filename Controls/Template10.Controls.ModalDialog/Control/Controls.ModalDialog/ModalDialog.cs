@@ -1,4 +1,5 @@
 ﻿using System;
+using Template10.Services.Gesture;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
@@ -8,6 +9,12 @@ namespace Template10.Controls
 {
     public sealed class ModalDialog : ContentControl
     {
+        // TODO: what if Default is null and it is custom?
+        public Services.DependencyInjection.IDependencyService DependencyService { get; set; } 
+            = Services.DependencyInjection.DependencyServiceBase.Default;
+        Services.Gesture.IBackButtonService2 _BackButtonService 
+            => DependencyService.Resolve<Services.Gesture.IBackButtonService>() as IBackButtonService2;
+
         public ModalDialog()
         {
             DefaultStyleKey = typeof(ModalDialog);
@@ -15,7 +22,8 @@ namespace Template10.Controls
             Unloaded += ModalDialog_Unloaded;
         }
 
-        public ModalDialog(UIElement content, UIElement modalContent) : this()
+        public ModalDialog(UIElement content, UIElement modalContent)
+            : this()
         {
             Content = content;
             ModalContent = modalContent;
@@ -23,12 +31,12 @@ namespace Template10.Controls
 
         private void ModalDialog_Loaded(object sender, RoutedEventArgs e)
         {
-            Services.BackButtonService.BackButtonService.BackRequested += BackButtonService_NavigateBack;
+            _BackButtonService.BackRequested += BackButtonService_NavigateBack;
         }
 
         private void ModalDialog_Unloaded(object sender, RoutedEventArgs e)
         {
-            Services.BackButtonService.BackButtonService.BackRequested -= BackButtonService_NavigateBack;
+            _BackButtonService.BackRequested -= BackButtonService_NavigateBack;
         }
 
         private void BackButtonService_NavigateBack(object sender, Common.HandledEventArgs e)

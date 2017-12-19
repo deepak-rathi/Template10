@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Template10.Mvvm;
-using Template10.Common;
-using Template10.Portable.Navigation;
-using Template10.Services.NavigationService;
+using Template10.Navigation;
 
 namespace Sample.ViewModels
 {
@@ -25,7 +23,7 @@ namespace Sample.ViewModels
         {
             if (parameter.Resuming)
             {
-                var item = await parameter.ToNavigationInfo.PageState.TryGetValueAsync<string>(nameof(Value));
+                var item = await parameter.ToNavigationInfo.PageState.TryGetAsync<string>(nameof(Value));
                 if (item.Success)
                 {
                     Value = item.Value;
@@ -39,9 +37,9 @@ namespace Sample.ViewModels
 
         public async override Task OnNavigatedFromAsync(INavigatedFromParameters parameters)
         {
-            if (parameters.Suspending)
+             if (parameters.Suspending)
             {
-                await parameters.PageState.SetValueAsync(nameof(Value), Value);
+                await parameters.PageState.TrySetAsync(nameof(Value), Value);
             }
         }
     }

@@ -1,19 +1,18 @@
 ﻿using System;
-using Template10.Portable;
-using Template10.Portable.Common;
+using Template10.Common;
 
-namespace Template10.Portable.Navigation
+namespace Template10.Navigation
 {
     public interface INavigationInfo
     {
         Type PageType { get; }
         object Parameter { get; }
-        IPropertyBagAsync PageState { get; }
+        IPropertyBagEx PageState { get; }
     }
 
     public class NavigationInfo : INavigationInfo
     {
-        public NavigationInfo(Type pageType, object parameter, IPropertyBagAsync pageState)
+        public NavigationInfo(Type pageType, object parameter, IPropertyBagEx pageState)
         {
             PageType = pageType;
             Parameter = parameter;
@@ -21,6 +20,6 @@ namespace Template10.Portable.Navigation
         }
         public Type PageType { get; }
         public object Parameter { get; }
-        public IPropertyBagAsync PageState { get; }
+        public IPropertyBagEx PageState { get; }
     }
 }

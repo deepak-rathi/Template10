@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Template10.Portable;
-using Template10.Portable.Common;
+using Template10.Common;
+using Template10.Common;
 
-namespace Template10.Portable.Navigation
+namespace Template10.Navigation
 {
     public interface INavigatedFromParameters : INavigationParameters
     {
         bool Suspending { get; }
         object Parameter { get; }
-        IPropertyBagAsync PageState { get; }
+        IPropertyBagEx PageState { get; }
     }
 
     public class NavigatedFromParameters : NavigationParametersBase, INavigatedFromParameters
     {
-        public NavigatedFromParameters(bool suspending, INavigationInfo from, INavigationInfo to, IDictionary<string, object> sessionState)
+        public NavigatedFromParameters(bool suspending, INavigationInfo from, INavigationInfo to, ISessionState sessionState)
             : base(from, to, sessionState)
         {
             Suspending = suspending;
@@ -23,6 +22,6 @@ namespace Template10.Portable.Navigation
 
         public bool Suspending { get; }
         public object Parameter => FromNavigationInfo.Parameter;
-        public IPropertyBagAsync PageState => FromNavigationInfo.PageState;
+        public IPropertyBagEx PageState => FromNavigationInfo.PageState;
     }
 }

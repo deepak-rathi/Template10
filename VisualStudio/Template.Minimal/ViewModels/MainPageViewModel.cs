@@ -1,21 +1,25 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Template10.Extensions;
 using Template10.Mvvm;
-using Template10.Common;
-using Template10.Portable.Navigation;
-using Template10.Utils;
+using Template10.Navigation;
+using Template10.Services.Dialog;
 using Windows.UI.Xaml.Controls;
 
 namespace Sample.ViewModels
 {
     public class MainPageViewModel : ViewModelBase
     {
+        IDialogService _DialogService;
+
         public MainPageViewModel()
         {
             if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
             {
                 Value = "Designtime value";
+            }
+            else
+            {
+                _DialogService = new DialogService();
             }
         }
 
@@ -24,9 +28,9 @@ namespace Sample.ViewModels
 
         public async override Task OnNavigatedToAsync(INavigatedToParameters parameter)
         {
-            if (parameter.Resuming)
+            if (parameter.NavigationMode == NavMode.Back | parameter.Resuming)
             {
-                var item = await parameter.ToNavigationInfo.PageState.TryGetValueAsync<string>(nameof(Value));
+                var item = await parameter.ToNavigationInfo.PageState.TryGetAsync<string>(nameof(Value));
                 if (item.Success)
                 {
                     Value = item.Value;
@@ -36,31 +40,13 @@ namespace Sample.ViewModels
 
         public async override Task OnNavigatedFromAsync(INavigatedFromParameters parameters)
         {
-            if (parameters.Suspending)
-            {
-                await parameters.PageState.SetValueAsync(nameof(Value), Value);
-            }
+            await parameters.PageState.TrySetAsync(nameof(Value), Value);
         }
 
         public async override Task<bool> CanNavigateAsync(IConfirmNavigationParameters parameters)
         {
-            var goingToDetails = parameters.ToNavigationInfo.PageType == typeof(Views.DetailPage);
-            if (goingToDetails)
-            {
-                var dialog = new ContentDialog
-                {
-                    Title = "Confirmation",
-                    Content = "Are you sure?",
-                    PrimaryButtonText = "Continue",
-                    SecondaryButtonText = "Cancel",
-                };
-                var result = await dialog.ShowAsyncEx();
-                return result == ContentDialogResult.Secondary;
-            }
-            else
-            {
-                return true;
-            }
+            var result = await _DialogService.PromptAsync("Are you sure?");
+            return result == MessageBoxResult.Yes;
         }
 
         public void GotoDetailsPage() => NavigationService.Navigate(typeof(Views.DetailPage), Value);

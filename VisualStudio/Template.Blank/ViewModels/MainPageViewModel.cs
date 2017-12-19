@@ -1,9 +1,14 @@
-﻿using Template10.Mvvm;
+﻿using System;
+using System.Threading.Tasks;
+using Template10.Mvvm;
+using Template10.Core;
+using Template10.Common;
+using Template10.Extensions;
 
 namespace Sample.ViewModels
 {
     public class MainPageViewModel : ViewModelBase
     {
-        // sample https://github.com/Windows-XAML/Template10/blob/master/Templates%20(Project)/Minimal/ViewModels/MainPageViewModel.cs
+        // TODO: override 
     }
 }

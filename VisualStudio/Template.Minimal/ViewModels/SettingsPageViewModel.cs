@@ -2,85 +2,71 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Template10.Mvvm;
-using Template10.Portable.Navigation;
-using Template10.Services.SettingsService.Services.SettingsService;
+using Template10.Services.Gesture;
+using Template10.Services.Marketplace;
 using Windows.UI.Xaml;
 
 namespace Sample.ViewModels
 {
     public class SettingsPageViewModel : ViewModelBase
     {
-        public override Task OnNavigatedToAsync(INavigatedToParameters parameter)
+        Services.SettingsService _settings;
+        MarketplaceService _marketplace;
+
+        public SettingsPageViewModel()
         {
-            return Task.CompletedTask;
+            if (!Windows.ApplicationModel.DesignMode.DesignModeEnabled)
+            {
+                _settings = new Services.SettingsService();
+                _marketplace = new MarketplaceService();
+            }
         }
 
-        public SettingsPartViewModel SettingsPartViewModel { get; } = new SettingsPartViewModel();
-        public AboutPartViewModel AboutPartViewModel { get; } = new AboutPartViewModel();
-    }
-
-    public class SettingsPartViewModel : BindableBase
-    {
-        Services.SettingsServices.SettingsService _settings;
-
-        public SettingsPartViewModel() => _settings = Services.SettingsServices.SettingsService.Instance;
+        // Settings
 
         public bool UseShellBackButton
         {
-            get => _settings.UseShellBackButton;
-            set => Set(() => { _settings.UseShellBackButton = value; });
+            get => _settings.ShellBackButtonPreference == ShellBackButtonPreferences.AutoShowInShell ? true : false;
+            set => Set(() => { _settings.ShellBackButtonPreference = value ? ShellBackButtonPreferences.AutoShowInShell : ShellBackButtonPreferences.NeverShowInShell; });
         }
 
         public bool UseLightThemeButton
         {
-            get => _settings.AppTheme.Equals(ApplicationTheme.Light);
-            set => Set(() => { _settings.AppTheme = value ? ApplicationTheme.Light : ApplicationTheme.Dark; });
+            get => _settings.DefaultTheme.Equals(ElementTheme.Light);
+            set => Set(() => { _settings.DefaultTheme = value ? ElementTheme.Light : ElementTheme.Dark; });
         }
 
-        private string _BusyText = "Please wait...";
         public string BusyText
         {
-            get => _BusyText;
-            set
-            {
-                Set(ref _BusyText, value);
-                _ShowBusyCommand.RaiseCanExecuteChanged();
-            }
+            get => _settings.BusyText;
+            set => Set(() => { _settings.BusyText = value; });
         }
 
-        DelegateCommand _ShowBusyCommand;
-        public DelegateCommand ShowBusyCommand
-            => _ShowBusyCommand ?? (_ShowBusyCommand = new DelegateCommand(async () =>
-            {
-                Views.Busy.SetBusy(true, _BusyText);
-                await Task.Delay(5000);
-                Views.Busy.SetBusy(false);
-            }, () => !string.IsNullOrEmpty(BusyText)));
+        public void ShowBusy() 
+            => Views.Busy.ShowBusyFor(BusyText, 5000);
 
-        public void Set(Action set, [CallerMemberName]string propertyName = null)
-        {
-            set.Invoke();
-            RaisePropertyChanged(propertyName);
-        }
-    }
 
-    public class AboutPartViewModel : BindableBase
-    {
-        public Uri Logo => Windows.ApplicationModel.Package.Current.Logo;
+        // About
 
-        public string DisplayName => Windows.ApplicationModel.Package.Current.DisplayName;
+        public Uri Logo 
+            => Windows.ApplicationModel.Package.Current.Logo;
 
-        public string Publisher => Windows.ApplicationModel.Package.Current.PublisherDisplayName;
+        public string DisplayName 
+            => Windows.ApplicationModel.Package.Current.DisplayName;
+
+        public string Publisher 
+            => Windows.ApplicationModel.Package.Current.PublisherDisplayName;
 
         public string Version
         {
             get
             {
-                var version = Windows.ApplicationModel.Package.Current.Id.Version;
-                return $"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
+                var v = Windows.ApplicationModel.Package.Current.Id.Version;
+                return $"{v.Major}.{v.Minor}.{v.Build}.{v.Revision}";
             }
         }
 
-        public Uri RateMe => new Uri($"ms-windows-store:review?PFN={Uri.EscapeUriString(Windows.ApplicationModel.Package.Current.Id.FamilyName)}");
+        public async void Review() 
+            => await _marketplace.LaunchAppReviewInStoreAsync();
     }
 }

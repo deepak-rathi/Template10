@@ -1,19 +1,24 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Template10.Portable;
+using Template10.Common;
+using Template10.Common;
 
-namespace Template10.Portable.Navigation
+namespace Template10.Navigation
 {
     public interface IConfirmNavigationParameters : INavigationParameters
     {
-        // empty
+        bool GoingTo(Type type);
     }
 
     public class ConfirmNavigationParameters : NavigationParametersBase, IConfirmNavigationParameters
     {
-        public ConfirmNavigationParameters(INavigationInfo from, INavigationInfo to, IDictionary<string, object> sessionState) : base(from, to, sessionState)
+        public ConfirmNavigationParameters(INavigationInfo from, INavigationInfo to, ISessionState sessionState) 
+            : base(from, to, sessionState)
         {
             // empty
         }
+
+        public bool GoingTo(Type type) => ToNavigationInfo?.PageType?.Equals(type) ?? false;
     }
 }

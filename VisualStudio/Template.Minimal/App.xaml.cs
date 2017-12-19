@@ -1,10 +1,17 @@
 ﻿using System.Threading.Tasks;
-using Sample.Services.SettingsServices;
-using Template10.Common;
 using Windows.UI.Xaml.Data;
+using Template10;
+using Template10.Core;
+using Windows.ApplicationModel.Activation;
+using Windows.UI.Xaml;
+using Sample.ViewModels;
+using System;
 using Windows.UI.Xaml.Controls;
-using Windows.UI;
-using Template10.Utils;
+using Template10.Strategies;
+using Template10.Services.Container;
+using Sample.Views;
+using Template10.Navigation;
+using Sample.Services;
 
 namespace Sample
 {
@@ -14,29 +21,27 @@ namespace Sample
         public App()
         {
             InitializeComponent();
-
-            Sample.Services.SettingsServices.SettingsService _settings = Sample.Services.SettingsServices.SettingsService.Instance;
-            RequestedTheme = _settings.AppTheme;
-            Settings.SplashFactory = (e) => new Views.Splash(e);
-            Settings.CacheMaxDuration = _settings.CacheMaxDuration;
-            Settings.ShowShellBackButton = _settings.UseShellBackButton;
-            Settings.AutoExtendExecutionSession = false;
         }
 
-        public async override Task OnStartAsync(StartupInfo e)
+        public override Task OnInitializeAsync()
         {
-            await Task.Delay(1000);
+            SetupSettings(new SettingsService());
+            return base.OnInitializeAsync();
+        }
 
-            switch (e.StartKind)
-            {
-                case StartKinds.Prelaunch:
-                case StartKinds.Launch:
-                case StartKinds.Activate:
-                    await NavigationService.NavigateAsync(typeof(Views.MainPage));
-                    break;
-                case StartKinds.Background:
-                    break;
-            }
+        private void SetupSettings(ISettingsService settings)
+        {
+            Template10.Settings.DefaultTheme = settings.DefaultTheme;
+            Template10.Settings.ShellBackButtonPreference = settings.ShellBackButtonPreference;
+            Template10.Settings.CacheMaxDuration = TimeSpan.FromDays(2);
+            Template10.Settings.RequireSerializableParameters = true;
+            Template10.Settings.ShowExtendedSplashScreen = true;
+        }
+
+        public override async Task OnStartAsync(IStartArgsEx e, INavigationService navService, ISessionState sessionState)
+        {
+            var args = e.LaunchActivatedEventArgs?.Arguments;
+            await navService.NavigateAsync(typeof(MainPage), args);
         }
     }
 }

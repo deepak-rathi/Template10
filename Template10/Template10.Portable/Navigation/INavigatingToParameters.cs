@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Template10.Portable;
-using Template10.Portable.Common;
+using Template10.Common;
+using Template10.Common;
 
-namespace Template10.Portable.Navigation
+namespace Template10.Navigation
 {
     public interface INavigatingToParameters : INavigationParameters
     {
@@ -12,7 +12,7 @@ namespace Template10.Portable.Navigation
 
     public class NavigatingToParameters : NavigationParametersBase, INavigatingToParameters
     {
-        public NavigatingToParameters(NavMode mode, INavigationInfo from, INavigationInfo to, bool resuming, IDictionary<string, object> sessionState)
+        public NavigatingToParameters(NavMode mode, INavigationInfo from, INavigationInfo to, bool resuming, ISessionState sessionState)
             : base(from, to, sessionState)
         {
             this.Resuming = resuming;

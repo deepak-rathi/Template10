@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
-using Template10.Portable;
+using Template10.Common;
+using Template10.Common;
 
-namespace Template10.Portable.Navigation
+namespace Template10.Navigation
 {
     public interface INavigationParameters
     {
         INavigationInfo FromNavigationInfo { get; }
         INavigationInfo ToNavigationInfo { get; }
-        IDictionary<string, object> SessionState { get; }
+        IPropertyBagEx SessionState { get; }
     }
 
     public abstract class NavigationParametersBase : INavigationParameters
     {
-        public NavigationParametersBase(INavigationInfo from, INavigationInfo to, IDictionary<string, object> sessionState)
+        public NavigationParametersBase(INavigationInfo from, INavigationInfo to, ISessionState sessionState)
         {
             FromNavigationInfo = from;
             ToNavigationInfo = to;
@@ -21,6 +22,6 @@ namespace Template10.Portable.Navigation
 
         public INavigationInfo FromNavigationInfo { get; }
         public INavigationInfo ToNavigationInfo { get; }
-        public IDictionary<string, object> SessionState { get; }
+        public IPropertyBagEx SessionState { get; }
     }
 }
